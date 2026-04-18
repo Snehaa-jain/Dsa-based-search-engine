@@ -15,7 +15,7 @@ app.use(express.static("."));
 let problems = [];
 let tfidf = new TfIdf();
 
-// store each document’s tf-idf vector and its magnitude
+// store each document's tf-idf vector and its magnitude
 let docVectors = [];
 let docMagnitudes = [];
 
@@ -104,6 +104,8 @@ app.post("/search", async (req, res) => {
       const p = problems[idx];
       const platform = p.url.includes("leetcode.com")
         ? "LeetCode"
+        : p.url.includes("codechef.com")
+        ? "CodeChef"
         : "Codeforces";
       return { ...p, platform };
     });
@@ -111,8 +113,13 @@ app.post("/search", async (req, res) => {
   res.json({ results: top });
 });
 
-loadProblemsAndBuildIndex().then(() => {
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+loadProblemsAndBuildIndex()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("Failed to load problems:", err);
+    process.exit(1);
   });
-});
